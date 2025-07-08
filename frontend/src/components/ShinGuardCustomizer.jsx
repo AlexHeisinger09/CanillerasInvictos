@@ -141,7 +141,7 @@ const ShinGuardCustomizer = () => {
             </Card>
 
             {/* Saved Designs */}
-            <Card className="shadow-lg border-0 bg-white/70 backdrop-blur-sm">
+            {/* <Card className="shadow-lg border-0 bg-white/70 backdrop-blur-sm">
               <CardHeader className="pb-4">
                 <CardTitle>Diseños Guardados</CardTitle>
               </CardHeader>
@@ -160,7 +160,7 @@ const ShinGuardCustomizer = () => {
                   ))}
                 </div>
               </CardContent>
-            </Card>
+            </Card> */}
           </div>
 
           {/* Right Panel - Canvas */}
