@@ -501,6 +501,13 @@ const ShinGuardCanvas = ({ images, guardType, isActive }) => {
               </Button>
             </div>
 
+            {/* Scale Info */}
+            <div className="text-xs text-center text-gray-500 bg-gray-50 p-2 rounded">
+              <span>Zoom: {Math.round(((imagePositions[selectedImage]?.scale || 1) * 100))}%</span>
+              <span className="mx-2">•</span>
+              <span>Rango: 10% - 800%</span>
+            </div>
+
             {/* Quick Actions */}
             <div className="flex gap-2 pt-2 border-t">
               <Button
