@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card } from "./ui/card";
 import { Button } from "./ui/button";
 import { Trash2, Move, RotateCw, ZoomIn, ZoomOut } from "lucide-react";
@@ -6,6 +6,25 @@ import { Trash2, Move, RotateCw, ZoomIn, ZoomOut } from "lucide-react";
 const ShinGuardCanvas = ({ images, guardType, isActive }) => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [imagePositions, setImagePositions] = useState({});
+
+  // Initialize positions for new images
+  useEffect(() => {
+    images.forEach((image, index) => {
+      if (!imagePositions[image.id]) {
+        setImagePositions(prev => ({
+          ...prev,
+          [image.id]: {
+            x: 0,
+            y: 0,
+            scale: 1,
+            rotation: 0,
+            initialX: 20 + (index % 2) * 40,
+            initialY: 20 + Math.floor(index / 2) * 40
+          }
+        }));
+      }
+    });
+  }, [images]);
 
   const handleImageClick = (imageId) => {
     setSelectedImage(selectedImage === imageId ? null : imageId);
@@ -16,8 +35,8 @@ const ShinGuardCanvas = ({ images, guardType, isActive }) => {
       ...prev,
       [imageId]: {
         ...prev[imageId],
-        x: (prev[imageId]?.x || 0) + (direction === 'left' ? -5 : direction === 'right' ? 5 : 0),
-        y: (prev[imageId]?.y || 0) + (direction === 'up' ? -5 : direction === 'down' ? 5 : 0)
+        x: (prev[imageId]?.x || 0) + (direction === 'left' ? -10 : direction === 'right' ? 10 : 0),
+        y: (prev[imageId]?.y || 0) + (direction === 'up' ? -10 : direction === 'down' ? 10 : 0)
       }
     }));
   };
@@ -27,7 +46,7 @@ const ShinGuardCanvas = ({ images, guardType, isActive }) => {
       ...prev,
       [imageId]: {
         ...prev[imageId],
-        scale: Math.max(0.5, Math.min(2, (prev[imageId]?.scale || 1) + (action === 'increase' ? 0.1 : -0.1)))
+        scale: Math.max(0.3, Math.min(2.5, (prev[imageId]?.scale || 1) + (action === 'increase' ? 0.15 : -0.15)))
       }
     }));
   };
@@ -42,11 +61,16 @@ const ShinGuardCanvas = ({ images, guardType, isActive }) => {
     }));
   };
 
-  const getImageStyle = (imageId) => {
+  const getImageStyle = (imageId, index) => {
     const position = imagePositions[imageId] || {};
+    const baseLeft = position.initialX || (20 + (index % 2) * 40);
+    const baseTop = position.initialY || (20 + Math.floor(index / 2) * 40);
+    
     return {
       transform: `translate(${position.x || 0}px, ${position.y || 0}px) scale(${position.scale || 1}) rotate(${position.rotation || 0}deg)`,
-      transition: 'transform 0.2s ease'
+      transition: selectedImage === imageId ? 'none' : 'transform 0.2s ease',
+      left: `${baseLeft}%`,
+      top: `${baseTop}%`
     };
   };
 
