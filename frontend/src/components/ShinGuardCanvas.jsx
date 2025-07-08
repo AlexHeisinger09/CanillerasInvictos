@@ -107,7 +107,7 @@ const ShinGuardCanvas = ({ images, guardType, isActive }) => {
       ...prev,
       [imageId]: {
         ...prev[imageId],
-        scale: Math.max(0.3, Math.min(2.5, (prev[imageId]?.scale || 1) + delta))
+        scale: Math.max(0.1, Math.min(8, (prev[imageId]?.scale || 1) + delta))
       }
     }));
   };
