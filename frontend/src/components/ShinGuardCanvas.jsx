@@ -169,73 +169,116 @@ const ShinGuardCanvas = ({ images, guardType, isActive }) => {
 
       {/* Image Controls */}
       {selectedImage && (
-        <Card className="p-4 bg-blue-50 border-blue-200">
+        <Card className="p-4 bg-blue-50 border-blue-200 animate-in slide-in-from-bottom-2">
           <div className="flex flex-col space-y-3">
-            <div className="text-sm font-medium text-blue-800 mb-2">
-              Controles de Imagen Seleccionada
+            <div className="text-sm font-medium text-blue-800 mb-2 flex items-center justify-between">
+              <span>Controles de Imagen Seleccionada</span>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setSelectedImage(null)}
+                className="h-6 w-6 p-0"
+              >
+                ×
+              </Button>
             </div>
             
             {/* Movement Controls */}
             <div className="grid grid-cols-3 gap-2">
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => handleImageMove(selectedImage, 'left')}
-                className="col-start-1"
-              >
-                ←
-              </Button>
+              <div></div>
               <Button
                 size="sm"
                 variant="outline"
                 onClick={() => handleImageMove(selectedImage, 'up')}
-                className="col-start-2"
+                className="h-8 hover:bg-blue-100"
               >
                 ↑
               </Button>
+              <div></div>
+              
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => handleImageMove(selectedImage, 'left')}
+                className="h-8 hover:bg-blue-100"
+              >
+                ←
+              </Button>
+              <div className="flex items-center justify-center text-xs text-gray-500">
+                Mover
+              </div>
               <Button
                 size="sm"
                 variant="outline"
                 onClick={() => handleImageMove(selectedImage, 'right')}
-                className="col-start-3"
+                className="h-8 hover:bg-blue-100"
               >
                 →
               </Button>
+              
+              <div></div>
               <Button
                 size="sm"
                 variant="outline"
                 onClick={() => handleImageMove(selectedImage, 'down')}
-                className="col-start-2"
+                className="h-8 hover:bg-blue-100"
               >
                 ↓
               </Button>
+              <div></div>
             </div>
 
             {/* Transform Controls */}
-            <div className="flex gap-2">
+            <div className="grid grid-cols-3 gap-2">
               <Button
                 size="sm"
                 variant="outline"
                 onClick={() => handleImageResize(selectedImage, 'decrease')}
-                className="flex-1"
+                className="flex items-center justify-center gap-1 hover:bg-blue-100"
               >
                 <ZoomOut className="h-3 w-3" />
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => handleImageResize(selectedImage, 'increase')}
-                className="flex-1"
-              >
-                <ZoomIn className="h-3 w-3" />
+                <span className="text-xs">Reducir</span>
               </Button>
               <Button
                 size="sm"
                 variant="outline"
                 onClick={() => handleImageRotate(selectedImage)}
-                className="flex-1"
+                className="flex items-center justify-center gap-1 hover:bg-blue-100"
               >
                 <RotateCw className="h-3 w-3" />
+                <span className="text-xs">Rotar</span>
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => handleImageResize(selectedImage, 'increase')}
+                className="flex items-center justify-center gap-1 hover:bg-blue-100"
+              >
+                <ZoomIn className="h-3 w-3" />
+                <span className="text-xs">Ampliar</span>
+              </Button>
+            </div>
+
+            {/* Quick Actions */}
+            <div className="flex gap-2 pt-2 border-t">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  setImagePositions(prev => ({
+                    ...prev,
+                    [selectedImage]: {
+                      ...prev[selectedImage],
+                      x: 0,
+                      y: 0,
+                      scale: 1,
+                      rotation: 0
+                    }
+                  }));
+                }}
+                className="flex-1 text-xs"
+              >
+                Resetear Posición
               </Button>
             </div>
           </div>
