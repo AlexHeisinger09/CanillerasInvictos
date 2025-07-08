@@ -406,6 +406,9 @@ const ShinGuardCanvas = ({ images, guardType, isActive }) => {
               <span>Pellizca para zoom/rotar</span>
             </div>
           </div>
+          <div className="text-xs text-gray-500 pt-1">
+            <span>✨ Zoom extendido: 10% - 800% para cubrir toda la canillera</span>
+          </div>
         </div>
       </Card>
 
