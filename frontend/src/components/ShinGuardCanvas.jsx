@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Card } from "./ui/card";
 import { Button } from "./ui/button";
 import { Trash2, Move, RotateCw, ZoomIn, ZoomOut } from "lucide-react";
@@ -6,6 +6,16 @@ import { Trash2, Move, RotateCw, ZoomIn, ZoomOut } from "lucide-react";
 const ShinGuardCanvas = ({ images, guardType, isActive }) => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [imagePositions, setImagePositions] = useState({});
+  const [dragState, setDragState] = useState({ isDragging: false, imageId: null, startX: 0, startY: 0 });
+  const canvasRef = useRef(null);
+
+  // Touch/Mouse interaction state
+  const [touchState, setTouchState] = useState({
+    touches: [],
+    lastDistance: 0,
+    lastAngle: 0,
+    isGesturing: false
+  });
 
   // Initialize positions for new images
   useEffect(() => {
@@ -25,6 +35,186 @@ const ShinGuardCanvas = ({ images, guardType, isActive }) => {
       }
     });
   }, [images]);
+
+  // Mouse event handlers
+  const handleMouseDown = (e, imageId) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const rect = canvasRef.current.getBoundingClientRect();
+    setDragState({
+      isDragging: true,
+      imageId,
+      startX: e.clientX - rect.left,
+      startY: e.clientY - rect.top
+    });
+    setSelectedImage(imageId);
+    
+    // Add global mouse listeners
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+  };
+
+  const handleMouseMove = (e) => {
+    if (!dragState.isDragging || !dragState.imageId) return;
+    
+    const rect = canvasRef.current.getBoundingClientRect();
+    const currentX = e.clientX - rect.left;
+    const currentY = e.clientY - rect.top;
+    
+    const deltaX = currentX - dragState.startX;
+    const deltaY = currentY - dragState.startY;
+    
+    setImagePositions(prev => ({
+      ...prev,
+      [dragState.imageId]: {
+        ...prev[dragState.imageId],
+        x: (prev[dragState.imageId]?.x || 0) + deltaX * 0.5,
+        y: (prev[dragState.imageId]?.y || 0) + deltaY * 0.5
+      }
+    }));
+    
+    setDragState(prev => ({
+      ...prev,
+      startX: currentX,
+      startY: currentY
+    }));
+  };
+
+  const handleMouseUp = () => {
+    setDragState({ isDragging: false, imageId: null, startX: 0, startY: 0 });
+    document.removeEventListener('mousemove', handleMouseMove);
+    document.removeEventListener('mouseup', handleMouseUp);
+  };
+
+  const handleWheel = (e, imageId) => {
+    if (selectedImage !== imageId) return;
+    
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const delta = e.deltaY > 0 ? -0.1 : 0.1;
+    
+    setImagePositions(prev => ({
+      ...prev,
+      [imageId]: {
+        ...prev[imageId],
+        scale: Math.max(0.3, Math.min(2.5, (prev[imageId]?.scale || 1) + delta))
+      }
+    }));
+  };
+
+  // Touch event handlers
+  const handleTouchStart = (e, imageId) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const touches = Array.from(e.touches);
+    setSelectedImage(imageId);
+    
+    if (touches.length === 1) {
+      // Single touch - drag
+      const rect = canvasRef.current.getBoundingClientRect();
+      setDragState({
+        isDragging: true,
+        imageId,
+        startX: touches[0].clientX - rect.left,
+        startY: touches[0].clientY - rect.top
+      });
+    } else if (touches.length === 2) {
+      // Multi-touch - pinch/rotate
+      const distance = getTouchDistance(touches[0], touches[1]);
+      const angle = getTouchAngle(touches[0], touches[1]);
+      
+      setTouchState({
+        touches,
+        lastDistance: distance,
+        lastAngle: angle,
+        isGesturing: true
+      });
+    }
+  };
+
+  const handleTouchMove = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const touches = Array.from(e.touches);
+    
+    if (touches.length === 1 && dragState.isDragging) {
+      // Single touch drag
+      const rect = canvasRef.current.getBoundingClientRect();
+      const currentX = touches[0].clientX - rect.left;
+      const currentY = touches[0].clientY - rect.top;
+      
+      const deltaX = currentX - dragState.startX;
+      const deltaY = currentY - dragState.startY;
+      
+      setImagePositions(prev => ({
+        ...prev,
+        [dragState.imageId]: {
+          ...prev[dragState.imageId],
+          x: (prev[dragState.imageId]?.x || 0) + deltaX * 0.5,
+          y: (prev[dragState.imageId]?.y || 0) + deltaY * 0.5
+        }
+      }));
+      
+      setDragState(prev => ({
+        ...prev,
+        startX: currentX,
+        startY: currentY
+      }));
+    } else if (touches.length === 2 && touchState.isGesturing && selectedImage) {
+      // Multi-touch pinch/rotate
+      const distance = getTouchDistance(touches[0], touches[1]);
+      const angle = getTouchAngle(touches[0], touches[1]);
+      
+      // Scale based on distance change
+      const scaleChange = (distance - touchState.lastDistance) * 0.01;
+      
+      // Rotation based on angle change
+      let rotationChange = angle - touchState.lastAngle;
+      if (rotationChange > 180) rotationChange -= 360;
+      if (rotationChange < -180) rotationChange += 360;
+      
+      setImagePositions(prev => ({
+        ...prev,
+        [selectedImage]: {
+          ...prev[selectedImage],
+          scale: Math.max(0.3, Math.min(2.5, (prev[selectedImage]?.scale || 1) + scaleChange)),
+          rotation: (prev[selectedImage]?.rotation || 0) + rotationChange
+        }
+      }));
+      
+      setTouchState({
+        touches,
+        lastDistance: distance,
+        lastAngle: angle,
+        isGesturing: true
+      });
+    }
+  };
+
+  const handleTouchEnd = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    setDragState({ isDragging: false, imageId: null, startX: 0, startY: 0 });
+    setTouchState({ touches: [], lastDistance: 0, lastAngle: 0, isGesturing: false });
+  };
+
+  // Helper functions
+  const getTouchDistance = (touch1, touch2) => {
+    const dx = touch1.clientX - touch2.clientX;
+    const dy = touch1.clientY - touch2.clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+  };
+
+  const getTouchAngle = (touch1, touch2) => {
+    const dx = touch1.clientX - touch2.clientX;
+    const dy = touch1.clientY - touch2.clientY;
+    return Math.atan2(dy, dx) * 180 / Math.PI;
+  };
 
   const handleImageClick = (imageId) => {
     setSelectedImage(selectedImage === imageId ? null : imageId);
@@ -68,7 +258,7 @@ const ShinGuardCanvas = ({ images, guardType, isActive }) => {
     
     return {
       transform: `translate(${position.x || 0}px, ${position.y || 0}px) scale(${position.scale || 1}) rotate(${position.rotation || 0}deg)`,
-      transition: selectedImage === imageId ? 'none' : 'transform 0.2s ease',
+      transition: dragState.isDragging || touchState.isGesturing ? 'none' : 'transform 0.2s ease',
       left: `${baseLeft}%`,
       top: `${baseTop}%`
     };
