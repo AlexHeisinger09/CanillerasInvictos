@@ -189,7 +189,7 @@ const ShinGuardCanvas = ({ images, guardType, isActive }) => {
         ...prev,
         [selectedImage]: {
           ...prev[selectedImage],
-          scale: Math.max(0.3, Math.min(2.5, (prev[selectedImage]?.scale || 1) + scaleChange)),
+          scale: Math.max(0.1, Math.min(8, (prev[selectedImage]?.scale || 1) + scaleChange)),
           rotation: (prev[selectedImage]?.rotation || 0) + rotationChange
         }
       }));
