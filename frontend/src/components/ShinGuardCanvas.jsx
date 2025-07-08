@@ -36,6 +36,14 @@ const ShinGuardCanvas = ({ images, guardType, isActive }) => {
     });
   }, [images]);
 
+  // Handle clicks outside images to deselect
+  const handleCanvasClick = (e) => {
+    // Only deselect if clicking directly on canvas, not on images
+    if (e.target === e.currentTarget || e.target.closest('.canvas-background')) {
+      setSelectedImage(null);
+    }
+  };
+
   // Mouse event handlers
   const handleMouseDown = (e, imageId) => {
     e.preventDefault();
