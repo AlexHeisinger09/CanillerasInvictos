@@ -32,3 +32,56 @@
         transform: rotate(360deg);
     }
 }
+
+/* Shin Guard Clipping Path */
+.clip-path-shin-guard {
+    clip-path: polygon(
+        30% 7%, 
+        70% 7%, 
+        85% 17%, 
+        85% 40%, 
+        82% 55%, 
+        78% 67%, 
+        75% 78%, 
+        70% 87%, 
+        60% 93%, 
+        40% 93%, 
+        30% 87%, 
+        25% 78%, 
+        22% 67%, 
+        18% 55%, 
+        15% 40%, 
+        15% 17%
+    );
+}
+
+/* Animation for image controls */
+.animate-in {
+    animation: slideIn 0.3s ease-out;
+}
+
+.slide-in-from-bottom-2 {
+    animation: slideInFromBottom 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInFromBottom {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
