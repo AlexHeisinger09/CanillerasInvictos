@@ -283,15 +283,17 @@ const ShinGuardCanvas = ({ images, guardType, isActive }) => {
           className="relative h-96 overflow-hidden rounded-lg bg-white/50 backdrop-blur-sm"
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
+          onClick={handleCanvasClick}
         >
           {/* Shin Guard Shape */}
-          <div className="absolute inset-4">
+          <div className="absolute inset-4 canvas-background" onClick={handleCanvasClick}>
             <div className="relative w-full h-full">
               {/* SVG Shin Guard Shape */}
               <svg
                 viewBox="0 0 200 300"
-                className="absolute inset-0 w-full h-full"
+                className="absolute inset-0 w-full h-full canvas-background"
                 style={{ filter: 'drop-shadow(2px 2px 4px rgba(0,0,0,0.1))' }}
+                onClick={handleCanvasClick}
               >
                 <defs>
                   <linearGradient id={`shinGuardGradient-${guardType}`} x1="0%" y1="0%" x2="100%" y2="100%">
@@ -322,13 +324,14 @@ const ShinGuardCanvas = ({ images, guardType, isActive }) => {
                   stroke="#94a3b8"
                   strokeWidth="2"
                   strokeDasharray="5,5"
+                  className="canvas-background"
                 />
               </svg>
               
               {/* Content Area */}
-              <div className="absolute inset-0 flex items-center justify-center">
+              <div className="absolute inset-0 flex items-center justify-center canvas-background" onClick={handleCanvasClick}>
                 {images.length === 0 ? (
-                  <div className="text-center z-10">
+                  <div className="text-center z-10 canvas-background">
                     <div className="text-4xl mb-2">🦵</div>
                     <p className="text-sm font-medium text-gray-600">Canillera {guardType === 'left' ? 'Izquierda' : 'Derecha'}</p>
                     <p className="text-xs text-gray-400">Sube imágenes para comenzar</p>
@@ -357,7 +360,10 @@ const ShinGuardCanvas = ({ images, guardType, isActive }) => {
                       userSelect: 'none',
                       ...getImageStyle(image.id, index)
                     }}
-                    onClick={() => handleImageClick(image.id)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleImageClick(image.id);
+                    }}
                     onMouseDown={(e) => handleMouseDown(e, image.id)}
                     onWheel={(e) => handleWheel(e, image.id)}
                     onTouchStart={(e) => handleTouchStart(e, image.id)}
@@ -365,8 +371,9 @@ const ShinGuardCanvas = ({ images, guardType, isActive }) => {
                     <img
                       src={image.url}
                       alt={`Imagen ${index + 1}`}
-                      className="w-full h-full object-cover rounded-lg shadow-md hover:shadow-lg transition-shadow pointer-events-none"
+                      className="w-full h-full object-cover shadow-md hover:shadow-lg transition-shadow pointer-events-none"
                       draggable={false}
+                      style={{ borderRadius: '0px' }}
                     />
                     {selectedImage === image.id && (
                       <div className="absolute -top-2 -right-2 bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">
