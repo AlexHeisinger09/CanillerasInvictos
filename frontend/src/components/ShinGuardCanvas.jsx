@@ -270,7 +270,12 @@ const ShinGuardCanvas = ({ images, guardType, isActive }) => {
       <Card className={`relative bg-gradient-to-b from-gray-100 to-gray-200 border-2 transition-all duration-300 ${
         isActive ? 'border-blue-500 shadow-lg' : 'border-gray-300'
       }`}>
-        <div className="relative h-96 overflow-hidden rounded-lg bg-white/50 backdrop-blur-sm">
+        <div 
+          ref={canvasRef}
+          className="relative h-96 overflow-hidden rounded-lg bg-white/50 backdrop-blur-sm"
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
           {/* Shin Guard Shape */}
           <div className="absolute inset-4">
             <div className="relative w-full h-full">
@@ -319,6 +324,12 @@ const ShinGuardCanvas = ({ images, guardType, isActive }) => {
                     <div className="text-4xl mb-2">🦵</div>
                     <p className="text-sm font-medium text-gray-600">Canillera {guardType === 'left' ? 'Izquierda' : 'Derecha'}</p>
                     <p className="text-xs text-gray-400">Sube imágenes para comenzar</p>
+                    <div className="mt-3 text-xs text-gray-500">
+                      <div className="flex items-center justify-center gap-1">
+                        <span>📱</span>
+                        <span>Arrastra, pellizca y rota</span>
+                      </div>
+                    </div>
                   </div>
                 ) : null}
               </div>
@@ -328,20 +339,25 @@ const ShinGuardCanvas = ({ images, guardType, isActive }) => {
                 {images.map((image, index) => (
                   <div
                     key={`${image.id}-${index}`}
-                    className={`absolute cursor-pointer transition-all duration-200 hover:z-20 ${
+                    className={`absolute cursor-pointer transition-all duration-200 hover:z-20 select-none ${
                       selectedImage === image.id ? 'ring-2 ring-blue-500 ring-offset-2 z-30' : 'z-10'
                     }`}
                     style={{
                       width: '60px',
                       height: '60px',
+                      touchAction: 'none',
+                      userSelect: 'none',
                       ...getImageStyle(image.id, index)
                     }}
                     onClick={() => handleImageClick(image.id)}
+                    onMouseDown={(e) => handleMouseDown(e, image.id)}
+                    onWheel={(e) => handleWheel(e, image.id)}
+                    onTouchStart={(e) => handleTouchStart(e, image.id)}
                   >
                     <img
                       src={image.url}
                       alt={`Imagen ${index + 1}`}
-                      className="w-full h-full object-cover rounded-lg shadow-md hover:shadow-lg transition-shadow"
+                      className="w-full h-full object-cover rounded-lg shadow-md hover:shadow-lg transition-shadow pointer-events-none"
                       draggable={false}
                     />
                     {selectedImage === image.id && (
@@ -352,6 +368,27 @@ const ShinGuardCanvas = ({ images, guardType, isActive }) => {
                   </div>
                 ))}
               </div>
+            </div>
+          </div>
+        </div>
+      </Card>
+
+      {/* Instructions */}
+      <Card className="p-3 bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
+        <div className="text-center space-y-2">
+          <h4 className="text-sm font-semibold text-blue-800">💡 Cómo usar:</h4>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-xs text-gray-700">
+            <div className="flex items-center justify-center gap-1">
+              <span>🖱️</span>
+              <span>Arrastra para mover</span>
+            </div>
+            <div className="flex items-center justify-center gap-1">
+              <span>🔄</span>
+              <span>Rueda del mouse para zoom</span>
+            </div>
+            <div className="flex items-center justify-center gap-1">
+              <span>🤏</span>
+              <span>Pellizca para zoom/rotar</span>
             </div>
           </div>
         </div>
